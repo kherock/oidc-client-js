@@ -383,6 +383,9 @@ export interface UserSettings {
   profile: Profile;
   expires_at: number;
   state: any;
+
+  /** Other custom values */
+  [valueKey: string]: any;
 }
 
 export class User {
@@ -406,6 +409,8 @@ export class User {
   expires_at: number;
   /** The custom state transferred in the last signin */
   state: any;
+  /** Other claims sent in the token response */
+  otherClaims: Record<string, any>;
 
   toStorageString(): string;
   static fromStorageString(storageString: string): User;
