@@ -97,12 +97,61 @@ export interface ResponseValidatorCtor {
   (settings: OidcClientSettings, metadataServiceCtor?: MetadataServiceCtor, userInfoServiceCtor?: any): ResponseValidator;
 }
 
-export interface SigninRequest {
+export class State {
+  readonly id: string;
+  readonly data: any;
+  readonly created: number;
+  readonly request_type: string;
+
+  constructor(opts: {
+    id?: string;
+    data?: any;
+    created?: number;
+    request_type?: string;
+  })
+
+  toStorageString(): string;
+}
+
+export class SigninState extends State {
+  readonly nonce?: string;
+  readonly authority?: string;
+  readonly client_id?: string;
+  readonly redirect_uri?: string;
+  readonly code_verifier?: string;
+  readonly code_challenge?: string;
+  readonly response_mode?: string;
+  readonly client_secret?: string;
+  readonly scope?: string;
+  readonly extraTokenParams?: string;
+  readonly skipUserInfo?: string;
+
+  constructor(opts: {
+    id?: string;
+    data?: any;
+    created?: number;
+    request_type?: string;
+
+    nonce?: boolean | string,
+    authority?: string,
+    client_id?: string,
+    redirect_uri?: string,
+    code_verifier?: boolean | string,
+    response_type?: string,
+    response_mode?: string,
+    client_secret?: string,
+    scope?: string,
+    extraTokenParams?: string[],
+    skipUserInfo?: boolean
+  });
+}
+
+export class SigninRequest {
   url: string;
   state: any;
 }
 
-export interface SignoutRequest {
+export interface SignoutRequest  {
   url: string;
   state?: any;
 }
@@ -383,6 +432,9 @@ export interface UserSettings {
   profile: Profile;
   expires_at: number;
   state: any;
+
+  /** Other custom values */
+  [valueKey: string]: any;
 }
 
 export class User {
@@ -406,6 +458,8 @@ export class User {
   expires_at: number;
   /** The custom state transferred in the last signin */
   state: any;
+  /** Other values sent in the token response */
+  otherValues: Record<string, any>;
 
   toStorageString(): string;
   static fromStorageString(storageString: string): User;
@@ -576,4 +630,12 @@ export interface CheckSessionIFrameCtor {
 
 export class SessionMonitor {
   constructor(userManager: UserManager, CheckSessionIFrameCtor: CheckSessionIFrameCtor);
+}
+
+export class ErrorResponse extends Error {
+  error?: string;
+  error_description?: string;
+  error_uri?: string;
+  state?: any;
+  session_state?: string;
 }
